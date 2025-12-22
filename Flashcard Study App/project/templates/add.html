@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+
+{% block title %}Add Flashcard{% endblock %}
+
+{% block main %}
+<h1>Add a Flashcard</h1>
+<form method="post" class="form-card">
+    <label for="question">Question</label>
+    <input id="question" name="question" placeholder="Enter your question" required>
+    <label for="answer">Answer</label>
+    <input id="answer" name="answer" placeholder="Enter the answer" required>
+    <button type="submit" class="btn">Add Flashcard</button>
+</form>
+{% endblock %}

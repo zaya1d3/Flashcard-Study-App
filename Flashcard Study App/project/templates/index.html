@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %}All Flashcards{% endblock %}
+
+{% block main %}
+<h1>All Flashcards</h1>
+{% if cards and cards|length > 0 %}
+<table>
+    <tr>
+        <th>Question</th>
+        <th>Answer</th>
+    <th>Edit</th>
+    <th>Delete</th>
+    </tr>
+    {% for card in cards %}
+    <tr>
+        <td>{{ card.question }}</td>
+        <td>{{ card.answer }}</td>
+        <td><a href="/edit/{{ card.id }}" class="btn">Edit</a></td>
+        <td>
+            <form method="post" action="/delete/{{ card.id }}" style="display:inline;" onsubmit="return confirm('Delete this flashcard?');">
+                <button type="submit" class="btn" style="background:#e53e3e;">Delete</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<div style="text-align:center; color:#888; margin-top:2rem; font-size:1.2rem;">No flashcards yet. <a href="/add" class="btn">Add your first flashcard!</a></div>
+{% endif %}
+{% endblock %}

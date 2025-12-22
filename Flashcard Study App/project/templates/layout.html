@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <nav>
+        <a href="/">Home</a> |
+        <a href="/add">Add Flashcard</a> |
+        <a href="/study">Study</a> |
+        <button id="dark-toggle" class="btn" style="float:right; margin-right:2rem; font-size:1.1rem; padding:0.3rem 1.2rem;">🌙</button>
+        {% if session.get('user_id') %}
+            <a href="/logout">Logout</a>
+        {% else %}
+            <a href="/login">Login</a> |
+            <a href="/register">Register</a>
+        {% endif %}
+    </nav>
+    <script>
+    // Dark mode toggle
+    const darkBtn = document.getElementById('dark-toggle');
+    if (darkBtn) {
+        darkBtn.onclick = function() {
+            document.body.classList.toggle('dark');
+            localStorage.setItem('dark', document.body.classList.contains('dark'));
+        };
+        // On load
+        if (localStorage.getItem('dark') === 'true') {
+            document.body.classList.add('dark');
+        }
+    }
+    </script>
+    <main>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+        {% block main %}{% endblock %}
+    </main>
+</body>
+</html>

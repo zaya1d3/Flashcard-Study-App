@@ -1,0 +1,110 @@
+
+{% extends "layout.html" %}
+
+{% block title %}Study{% endblock %}
+
+{% block main %}
+<h1>Study Flashcards</h1>
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+    <button id="shuffle-btn" class="btn" style="background:#38b2ac;">Shuffle</button>
+    <div id="progress-bar-container" style="flex:1; margin:0 2rem; height:18px; background:#e2e8f0; border-radius:9px; overflow:hidden;">
+        <div id="progress-bar" style="height:100%; width:0; background:#4299e1; transition:width 0.3s;"></div>
+    </div>
+    <span id="dark-mode-hint" style="color:#888; font-size:1.1rem;">🌙 Try dark mode!</span>
+</div>
+<div id="study-flashcard-container" style="display:flex; align-items:center; justify-content:center; gap:2rem; margin-top:2rem;">
+    <button id="prev-card" class="btn" style="font-size:2.2rem; padding:0.7rem 1.5rem;">&#8592;</button>
+    <div id="flashcard-holder"></div>
+    <button id="next-card" class="btn" style="font-size:2.2rem; padding:0.7rem 1.5rem;">&#8594;</button>
+</div>
+<div id="card-counter" style="text-align:center; color:#888; margin-top:1.5rem; font-size:1.3rem;"></div>
+<div id="cardsData" style="display:none;">{{ cards|tojson|safe }}</div>
+<script type="text/javascript">
+var cards = JSON.parse(document.getElementById('cardsData').textContent);
+var current = 0;
+
+function renderCard(idx) {
+    const card = cards[idx];
+    if (!card) return;
+    document.getElementById('flashcard-holder').innerHTML = `
+    <div class="flashcard-3d" tabindex="0">
+        <div class="flashcard-inner">
+            <div class="flashcard-front">
+                <span class="flashcard-label">Q:</span>
+                <div class="flashcard-content">${card.question}</div>
+                <button class="flip-btn" aria-label="Show Answer">Flip</button>
+            </div>
+            <div class="flashcard-back">
+                <span class="flashcard-label">A:</span>
+                <div class="flashcard-content">${card.answer}</div>
+                <button class="flip-btn" aria-label="Show Question">Flip</button>
+            </div>
+        </div>
+    </div>
+    `;
+    document.getElementById('card-counter').textContent = `Card ${idx+1} of ${cards.length}`;
+    updateProgressBar();
+    attachFlipHandler();
+}
+
+function attachFlipHandler() {
+    const card = document.querySelector('.flashcard-3d');
+    if (!card) return;
+    card.addEventListener('click', function(e) {
+        if (e.target.classList.contains('flip-btn')) {
+            this.classList.toggle('flipped');
+        }
+    });
+    card.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            this.classList.toggle('flipped');
+            e.preventDefault();
+        }
+    });
+}
+
+document.getElementById('prev-card').onclick = function() {
+    if (current > 0) { current--; renderAndUpdate(); }
+}
+document.getElementById('next-card').onclick = function() {
+    if (current < cards.length-1) { current++; renderAndUpdate(); }
+}
+
+function updateArrows() {
+    document.getElementById('prev-card').disabled = (current === 0);
+    document.getElementById('next-card').disabled = (current === cards.length-1);
+}
+
+function updateProgressBar() {
+    const bar = document.getElementById('progress-bar');
+    if (bar) {
+        bar.style.width = ((current+1)/cards.length*100) + '%';
+    }
+}
+
+function renderAndUpdate() {
+    renderCard(current);
+    updateArrows();
+}
+
+// Shuffle cards
+document.getElementById('shuffle-btn').onclick = function() {
+    for (let i = cards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [cards[i], cards[j]] = [cards[j], cards[i]];
+    }
+    current = 0;
+    renderAndUpdate();
+};
+
+if (cards.length > 0) {
+    renderAndUpdate();
+} else {
+    document.getElementById('flashcard-holder').innerHTML = '<div style="color:#888; font-size:1.2rem;">No flashcards to study.</div>';
+    document.getElementById('prev-card').style.display = 'none';
+    document.getElementById('next-card').style.display = 'none';
+    document.getElementById('shuffle-btn').style.display = 'none';
+    document.getElementById('progress-bar-container').style.display = 'none';
+}
+</script>
+{% endblock %}
